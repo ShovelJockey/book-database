@@ -24,6 +24,23 @@ def menu():
             \rPress enter to try again.''')
 
 
+def alter_books_menu():
+    while True:
+        print('''
+        \n1) Edit
+        \r2) Delete
+        \r3) Return to main menu
+        ''')
+        choice = input('What would you like to do?  ')
+        if choice in ['1', '2', '3']:
+            return choice
+        else:
+            input('''
+            \rPlease choose one of the options above.
+            \rA number from 1-3.
+            \rPress enter to try again.''')
+
+
 def clean_date(date_str):
     months = ['January', 'February', 'March', 'April', 'May', 
     'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -84,6 +101,30 @@ def clean_id(id_str, options):
         \r************************
         ''')
             return
+
+
+def edit_check(column_name, current_value):
+    print(f'\n **** Edit {column_name} ****')
+    if column_name == 'Price':
+        print(f'\rCurrent Value: £{current_value/100}')
+    elif column_name == 'Date':
+        print(f'\rCurrent Value: {current_value.strftime("%B %d %Y")}')
+    else:
+        print(f'\rCurrent Value: {current_value}')
+
+    if column_name == 'Date' or column_name == 'Price':
+        while True:
+            changes = input('What would you like to change the value to?  ')
+            if column_name == 'Date':
+                changes = clean_date(changes)
+                if type(changes) == datetime.date:
+                    return changes
+            elif column_name == 'Price':
+                changes = clean_price(changes)
+                if type(changes) == int:
+                    return changes
+    else:
+        return input('What would you like to change the value to?  ')
 
 
 def add_csv():
@@ -147,7 +188,20 @@ def app():
             \rPublished: {searched_book.published_date}
             \rPrice: £{searched_book.price / 100}
             ''')
-            input('\nPress enter to return to main menu')
+            sub_choice = alter_books_menu()
+            if sub_choice == '1':
+                searched_book.title = edit_check('Title', searched_book.title)
+                searched_book.author = edit_check('Author', searched_book.author)
+                searched_book.published_date = edit_check('Date', searched_book.published_date)
+                searched_book.price = edit_check('Price', searched_book.price)
+                session.commit()
+                print('Book updated')
+                time.sleep(1.5)
+            elif sub_choice == '2':
+                session.delete(searched_book)
+                session.commit()
+                print('Book deleted')
+                time.sleep(1.5)
         elif choice == '4':
             #analysis
             pass
