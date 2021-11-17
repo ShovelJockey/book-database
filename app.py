@@ -203,8 +203,20 @@ def app():
                 print('Book deleted')
                 time.sleep(1.5)
         elif choice == '4':
-            #analysis
-            pass
+            oldest_book = session.query(Book).order_by(Book.published_date).first()
+            newest_book = session.query(Book).order_by(Book.published_date.desc()).first()
+            total_books = session.query(Book).count()
+            books_2015 = session.query(Book).filter(Book.published_date>='2015-01-01').count() #number of books published in 2015 or after
+            python_books = session.query(Book).filter(Book.title.like('%Python%')).count() #number of books with python in title
+            print(f'''
+            \n***** Book Analysis *****
+            \rOldest Book: {oldest_book}
+            \rNewest Book: {newest_book}
+            \rTotal Books: {total_books}
+            \rNumber of Python Books: {python_books}
+            \rBooks published after 2015: {books_2015}
+            ''')
+            input('\nPress enter to return to main menu.')
         else:
             print('Goodbye')
             app_running = False
