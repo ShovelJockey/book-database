@@ -36,7 +36,7 @@ def clean_date(date_str):
     except ValueError:
         input('''
         \n***** DATE ERROR *****
-        \rThe date format should include a valid Month Day, Year
+        \rThe date format should include a valid Month Day, Year.
         \rEx: January 13, 2003
         \rpress enter to try again
         \r************************
@@ -52,7 +52,7 @@ def clean_price(price_str):
     except ValueError:
         input('''
         \n***** PRICE ERROR *****
-        \rThe price should be a number without a currency symbol
+        \rThe price should be a number without a currency symbol.
         \rEx: 9.99
         \rpress enter to try again
         \r************************
@@ -60,6 +60,30 @@ def clean_price(price_str):
         return
     else:
         return int(price_float*100)
+
+
+def clean_id(id_str, options):
+    try:
+        book_id = int(id_str)
+    except ValueError:
+        input('''
+        \n***** ID ERROR *****
+        \rThe ID should be a number.
+        \rpress enter to try again
+        \r************************
+        ''')
+        return
+    else:
+        if book_id in options:
+            return book_id
+        else:
+            input(f'''
+        \n***** ID ERROR *****
+        \rOptions: {options}.
+        \rpress enter to try again
+        \r************************
+        ''')
+            return
 
 
 def add_csv():
@@ -106,8 +130,24 @@ def app():
                 print(f'{book.id} | {book.title} | {book.author}')
             input('\nPress enter to return to the main menu.')
         elif choice == '3':
-            #search for a book
-            pass
+            id_options = []
+            for book in session.query(Book):
+                id_options.append(book.id)
+            id_error = True
+            while id_error:
+                id_choice = input(f'''
+                \nID Options: {id_options}
+                \rBook ID:  ''')
+                id_choice = clean_id(id_choice, id_options)
+                if type(id_choice) == int:
+                    id_error = False
+            searched_book = session.query(Book).filter(Book.id==id_choice).first()
+            print(f'''
+            \n{searched_book.title} by {searched_book.author}
+            \rPublished: {searched_book.published_date}
+            \rPrice: £{searched_book.price / 100}
+            ''')
+            input('\nPress enter to return to main menu')
         elif choice == '4':
             #analysis
             pass
@@ -128,5 +168,5 @@ if __name__ == '__main__':
     add_csv
     app()
 
-    for book in session.query(Book):
-        print(book)
+    #for book in session.query(Book):
+        #print(book)
